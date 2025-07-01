@@ -46,6 +46,33 @@ jobs:
 
 
 
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build Docker image
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/flask-docker-app:latest .
+
+      - name: Push Docker image
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/flask-docker-app:latest
+
       - name: Send Email on Success
         if: success()
         uses: dawidd6/action-send-mail@v3
@@ -56,18 +83,16 @@ jobs:
           password: ${{ secrets.EMAIL_PASSWORD }}
           subject: ✅ Docker Build Succeeded: ${{ github.repository }}
           body: |
-            🎉 *Success!*
+            🎉 Success!
 
             The GitHub Actions workflow completed successfully for:
-            👉 **Repository**: ${{ github.repository }}
-            👉 **Branch**: ${{ github.ref_name }}
-            👉 **Commit**: "${{ github.event.head_commit.message }}" by ${{ github.event.head_commit.author.name }}
+            👉 Repository: ${{ github.repository }}
+            👉 Branch: ${{ github.ref_name }}
+            👉 Commit: "${{ github.event.head_commit.message }}" by ${{ github.event.head_commit.author.name }}
 
-            📦 Docker image built and pushed:  
-            `docker.io/${{ secrets.DOCKERHUB_USERNAME }}/flask-docker-app:latest`
+            📦 Docker image: docker.io/${{ secrets.DOCKERHUB_USERNAME }}/flask-docker-app:latest
 
-            🕐 Duration: See GitHub UI for timing  
-            🔗 [View Workflow Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            🔗 View Workflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
           to: ${{ secrets.EMAIL_TO }}
           from: GitHub CI/CD Bot <${{ secrets.EMAIL_USERNAME }}>
@@ -82,16 +107,16 @@ jobs:
           password: ${{ secrets.EMAIL_PASSWORD }}
           subject: ❌ Docker Build Failed: ${{ github.repository }}
           body: |
-            ⚠️ *Failure Detected!*
+            ⚠️ Failure!
 
             The GitHub Actions workflow failed for:
-            👉 **Repository**: ${{ github.repository }}
-            👉 **Branch**: ${{ github.ref_name }}
-            👉 **Commit**: "${{ github.event.head_commit.message }}" by ${{ github.event.head_commit.author.name }}
+            👉 Repository: ${{ github.repository }}
+            👉 Branch: ${{ github.ref_name }}
+            👉 Commit: "${{ github.event.head_commit.message }}" by ${{ github.event.head_commit.author.name }}
 
-            🔗 [View Workflow Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            🔗 View Workflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
-            Please check the logs for more details.
+            Please check the logs for details.
 
           to: ${{ secrets.EMAIL_TO }}
           from: GitHub CI/CD Bot <${{ secrets.EMAIL_USERNAME }}>
