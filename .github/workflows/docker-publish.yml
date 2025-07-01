@@ -46,7 +46,6 @@ jobs:
 
 
 
-
       - name: Send Email on Success
         if: success()
         uses: dawidd6/action-send-mail@v3
@@ -55,10 +54,21 @@ jobs:
           server_port: 465
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_PASSWORD }}
-          subject: ✅ Docker Image Built and Pushed
+          subject: ✅ Docker Build Succeeded: ${{ github.repository }}
           body: |
-            The GitHub Actions workflow for ${{ github.repository }} completed successfully.
-            Docker image was pushed to Docker Hub.
+            🎉 *Success!*
+
+            The GitHub Actions workflow completed successfully for:
+            👉 **Repository**: ${{ github.repository }}
+            👉 **Branch**: ${{ github.ref_name }}
+            👉 **Commit**: "${{ github.event.head_commit.message }}" by ${{ github.event.head_commit.author.name }}
+
+            📦 Docker image built and pushed:  
+            `docker.io/${{ secrets.DOCKERHUB_USERNAME }}/flask-docker-app:latest`
+
+            🕐 Duration: See GitHub UI for timing  
+            🔗 [View Workflow Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
           to: ${{ secrets.EMAIL_TO }}
           from: GitHub CI/CD Bot <${{ secrets.EMAIL_USERNAME }}>
 
@@ -70,9 +80,18 @@ jobs:
           server_port: 465
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_PASSWORD }}
-          subject: ❌ Build or Push Failed
+          subject: ❌ Docker Build Failed: ${{ github.repository }}
           body: |
-            The GitHub Actions workflow for ${{ github.repository }} failed.
-            Please check the Actions tab for logs.
+            ⚠️ *Failure Detected!*
+
+            The GitHub Actions workflow failed for:
+            👉 **Repository**: ${{ github.repository }}
+            👉 **Branch**: ${{ github.ref_name }}
+            👉 **Commit**: "${{ github.event.head_commit.message }}" by ${{ github.event.head_commit.author.name }}
+
+            🔗 [View Workflow Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+            Please check the logs for more details.
+
           to: ${{ secrets.EMAIL_TO }}
           from: GitHub CI/CD Bot <${{ secrets.EMAIL_USERNAME }}>
