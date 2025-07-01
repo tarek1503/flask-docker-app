@@ -42,3 +42,37 @@ jobs:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
           SLACK_MESSAGE: "❌ Docker image build or push failed for ${{ github.repository }}"
           SLACK_COLOR: danger
+
+
+
+
+
+      - name: Send Email on Success
+        if: success()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: ✅ Docker Image Built and Pushed
+          body: |
+            The GitHub Actions workflow for ${{ github.repository }} completed successfully.
+            Docker image was pushed to Docker Hub.
+          to: ${{ secrets.EMAIL_TO }}
+          from: GitHub CI/CD Bot <${{ secrets.EMAIL_USERNAME }}>
+
+      - name: Send Email on Failure
+        if: failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: ❌ Build or Push Failed
+          body: |
+            The GitHub Actions workflow for ${{ github.repository }} failed.
+            Please check the Actions tab for logs.
+          to: ${{ secrets.EMAIL_TO }}
+          from: GitHub CI/CD Bot <${{ secrets.EMAIL_USERNAME }}>
