@@ -26,21 +26,7 @@ jobs:
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/flask-docker-app:latest
 
 
-      - name: Set up kubeconfig
-        run: |
-          mkdir -p ~/.kube
-          echo "${{ secrets.KUBECONFIG_DATA }}" | base64 -d > ~/.kube/config
-
-      - name: Set up kubectl
-        uses: azure/setup-kubectl@v3
-        with:
-          version: 'latest'
-
-      - name: Deploy to Kubernetes
-        run: |
-          kubectl set image deployment/flask-app flask-app=${{ secrets.DOCKERHUB_USERNAME }}/flask-docker-app:latest
-          kubectl rollout status deployment/flask-app
-
+     
       - name: Notify Slack on success
         if: success()
         uses: rtCamp/action-slack-notify@v2
